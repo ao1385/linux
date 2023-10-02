@@ -166,4 +166,10 @@ config KVM_PROVE_MMU
 config KVM_EXTERNAL_WRITE_TRACKING
 	bool
 
+config KVM_HYPERV_VSM
+	bool "KVM Hyper-V Virtual Secure Mode (VSM) support"
+	help
+	  Enables the KVM VSM device, and all dependencies necessary in to
+	  emulate Hyper-V's VSM.
+
 endif # VIRTUALIZATION
