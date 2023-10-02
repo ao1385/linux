@@ -9,6 +9,10 @@
 
 #include <linux/kvm_host.h>
 
+#define KVM_HV_VTL_ATTRS                                          \
+	(KVM_MEMORY_ATTRIBUTE_READ | KVM_MEMORY_ATTRIBUTE_WRITE | \
+	 KVM_MEMORY_ATTRIBUTE_EXECUTE | KVM_MEMORY_ATTRIBUTE_NO_ACCESS)
+
 struct kvm_hv_vtl_dev {
 	int vtl;
 	struct xarray mem_attrs;
@@ -39,12 +43,36 @@ static void kvm_hv_vtl_release(struct kvm_device *dev)
 	kfree(dev); /* alloc by kvm_ioctl_create_device, free by .release */
 }
 
-static int kvm_hv_vtl_create(struct kvm_device *dev, u32 type);
+static long kvm_hv_vtl_ioctl(struct kvm_device *dev, unsigned int ioctl,
+			     unsigned long arg)
+{
+	switch (ioctl) {
+	case KVM_SET_MEMORY_ATTRIBUTES: {
+		struct kvm_hv_vtl_dev *vtl_dev = dev->private;
+		struct kvm_memory_attributes attrs;
+		int r;
+
+		if (copy_from_user(&attrs, (void __user *)arg, sizeof(attrs)))
+			return -EFAULT;
+
+		r = kvm_ioctl_set_mem_attributes(dev->kvm, &vtl_dev->mem_attrs,
+						 KVM_HV_VTL_ATTRS, &attrs);
+		if (r)
+			return r;
+		break;
+	}
+	default:
+		return -ENOTTY;
+	}
+
+	return 0;
+}
 
 static struct kvm_device_ops kvm_hv_vtl_ops = {
 	.name = "kvm-hv-vtl",
 	.create = kvm_hv_vtl_create,
 	.release = kvm_hv_vtl_release,
+	.ioctl = kvm_hv_vtl_ioctl,
 	.get_attr = kvm_hv_vtl_get_attr,
 };
 
