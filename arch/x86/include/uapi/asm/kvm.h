@@ -565,4 +565,10 @@ struct kvm_pmu_event_filter {
 #define KVM_X86_DEFAULT_VM	0
 #define KVM_X86_SW_PROTECTED_VM	1
 
+/* Partition-wide VSM state; for KVM_HV_GET/SET_VSM_STATE */
+struct kvm_hv_vsm_state {
+	__u64 vsm_code_page_offsets64;
+	__u64 vsm_code_page_offsets32;
+};
+
 #endif /* _ASM_X86_KVM_H */
