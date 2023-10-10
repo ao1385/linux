@@ -168,6 +168,7 @@ config KVM_EXTERNAL_WRITE_TRACKING
 
 config KVM_HYPERV_VSM
 	bool "KVM Hyper-V Virtual Secure Mode (VSM) support"
+	select KVM_GENERIC_MEMORY_ATTRIBUTES
 	help
 	  Enables the KVM VSM device, and all dependencies necessary in to
 	  emulate Hyper-V's VSM.

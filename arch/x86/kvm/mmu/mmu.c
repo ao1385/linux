@@ -4332,6 +4332,7 @@ static int __kvm_faultin_pfn(struct kvm_vcpu *vcpu, struct kvm_page_fault *fault
 {
 	struct kvm_memory_slot *slot = fault->slot;
 	bool async;
+	int r;
 
 	/*
 	 * Retry the page fault if the gfn hit a memslot that is being deleted
@@ -4367,6 +4368,14 @@ static int __kvm_faultin_pfn(struct kvm_vcpu *vcpu, struct kvm_page_fault *fault
 
 	if (fault->is_private)
 		return kvm_faultin_pfn_private(vcpu, fault);
+
+#ifdef CONFIG_KVM_HYPERV_VSM
+	if (kvm_hv_vsm_enabled(vcpu->kvm)) {
+		r = kvm_hv_faultin_pfn(vcpu, fault);
+		if (r != RET_PF_CONTINUE)
+			return r;
+	}
+#endif
 
 	async = false;
 	fault->pfn = __gfn_to_pfn_memslot(slot, fault->gfn, false, false, &async,
@@ -5813,6 +5822,9 @@ int noinline kvm_mmu_page_fault(struct kvm_vcpu *vcpu, gpa_t cr2_or_gpa, u64 err
 		if (KVM_BUG_ON(r == RET_PF_INVALID, vcpu->kvm))
 			return -EIO;
 	}
+
+	if (r == RET_PF_USER)
+		return 0;
 
 	if (r < 0)
 		return r;
