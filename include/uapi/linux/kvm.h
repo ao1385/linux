@@ -2320,4 +2320,8 @@ struct kvm_create_guest_memfd {
 
 #define KVM_GUEST_MEMFD_ALLOW_HUGEPAGE		(1ULL << 0)
 
+/* Get/Set Hyper-V VSM state. Available with KVM_CAP_HYPERV_VSM */
+#define KVM_HV_GET_VSM_STATE _IOR(KVMIO, 0xd5, struct kvm_hv_vsm_state)
+#define KVM_HV_SET_VSM_STATE _IOW(KVMIO, 0xd6, struct kvm_hv_vsm_state)
+
 #endif /* __LINUX_KVM_H */
