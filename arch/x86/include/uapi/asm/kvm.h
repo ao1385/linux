@@ -571,4 +571,8 @@ struct kvm_hv_vsm_state {
 	__u64 vsm_code_page_offsets32;
 };
 
+struct kvm_apic_id_mask {
+	__u64 width; /* mask width in bits, max 32 */
+};
+
 #endif /* _ASM_X86_KVM_H */

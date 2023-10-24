@@ -7,6 +7,7 @@
 
 #include "mmu/mmu_internal.h"
 #include "hyperv.h"
+#include "lapic.h"
 #include "trace.h"
 
 #include <linux/kvm_host.h>

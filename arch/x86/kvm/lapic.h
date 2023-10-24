@@ -278,4 +278,14 @@ static inline u8 kvm_xapic_id(struct kvm_lapic *apic)
 	return kvm_lapic_get_reg(apic, APIC_ID) >> 24;
 }
 
+static inline u32 kvm_apic_id_masked(struct kvm *kvm, u32 apic_id)
+{
+	return apic_id & ~(0xFFFFFFFF << kvm->arch.apic_id_mask_shift);
+}
+
+static inline u32 kvm_apic_id_mask_value(struct kvm *kvm, u32 apic_id)
+{
+	return apic_id >> kvm->arch.apic_id_mask_shift;
+}
+
 #endif

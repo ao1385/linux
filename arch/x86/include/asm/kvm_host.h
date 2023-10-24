@@ -1317,6 +1317,8 @@ struct kvm_arch {
 	struct rw_semaphore apicv_update_lock;
 	unsigned long apicv_inhibit_reasons;
 
+	uint64_t apic_id_mask_shift;
+
 	gpa_t wall_clock;
 
 	bool mwait_in_guest;

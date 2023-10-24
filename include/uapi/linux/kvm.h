@@ -1238,6 +1238,7 @@ struct kvm_ppc_resize_hpt {
 #define KVM_CAP_GUEST_MEMFD 233
 #define KVM_CAP_VM_TYPES 234
 #define KVM_CAP_HYPERV_VSM 235
+#define KVM_CAP_APIC_ID_MASK 236
 
 #ifdef KVM_CAP_IRQ_ROUTING
 
@@ -2339,4 +2340,5 @@ struct kvm_create_guest_memfd {
 #define KVM_HV_GET_VSM_STATE _IOR(KVMIO, 0xd5, struct kvm_hv_vsm_state)
 #define KVM_HV_SET_VSM_STATE _IOW(KVMIO, 0xd6, struct kvm_hv_vsm_state)
 
+#define KVM_SET_APIC_ID_MASK _IOW(KVMIO, 0xd7, struct kvm_apic_id_mask)
 #endif /* __LINUX_KVM_H */

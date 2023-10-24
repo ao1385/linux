@@ -4527,6 +4527,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
 	case KVM_CAP_VM_DISABLE_NX_HUGE_PAGES:
 	case KVM_CAP_IRQFD_RESAMPLE:
 	case KVM_CAP_MEMORY_FAULT_INFO:
+	case KVM_CAP_APIC_ID_MASK:
 		r = 1;
 		break;
 	case KVM_CAP_EXIT_HYPERCALL:
@@ -6783,6 +6784,15 @@ static int kvm_vm_ioctl_set_clock(struct kvm *kvm, void __user *argp)
 	return 0;
 }
 
+static int kvm_vm_ioctl_set_apic_id_mask(struct kvm *kvm, struct kvm_apic_id_mask *mask)
+{
+	if (mask->width > 32)
+		return -EINVAL;
+
+	kvm->arch.apic_id_mask_shift = 32 - mask->width;
+	return 0;
+}
+
 int kvm_arch_vm_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
 {
 	struct kvm *kvm = filp->private_data;
@@ -7157,6 +7167,20 @@ out_get_vsm_state:
 		}
 		r = kvm_vm_ioctl_set_hv_vsm_state(kvm, vsm_state);
 		kfree(vsm_state);
+		break;
+	}
+	case KVM_SET_APIC_ID_MASK: {
+		struct kvm_apic_id_mask *mask;
+
+		r = -EINVAL;
+
+		mask = memdup_user(argp, sizeof(*mask));
+		if (IS_ERR(mask)) {
+			r = PTR_ERR(mask);
+			goto out;
+		}
+		r = kvm_vm_ioctl_set_apic_id_mask(kvm, mask);
+		kfree(mask);
 		break;
 	}
 	default:

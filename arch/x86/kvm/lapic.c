@@ -141,7 +141,7 @@ static inline int apic_enabled(struct kvm_lapic *apic)
 
 static inline u32 kvm_x2apic_id(struct kvm_lapic *apic)
 {
-	return apic->vcpu->vcpu_id;
+	return kvm_apic_id_masked(apic->vcpu->kvm, apic->vcpu->vcpu_id);
 }
 
 static bool kvm_can_post_timer_interrupt(struct kvm_vcpu *vcpu)
@@ -526,7 +526,7 @@ static inline void kvm_apic_set_x2apic_id(struct kvm_lapic *apic, u32 id)
 {
 	u32 ldr = kvm_apic_calc_x2apic_ldr(id);
 
-	WARN_ON_ONCE(id != apic->vcpu->vcpu_id);
+	WARN_ON_ONCE(id != kvm_apic_id_masked(apic->vcpu->kvm, apic->vcpu->vcpu_id));
 
 	kvm_lapic_set_reg(apic, APIC_ID, id);
 	kvm_lapic_set_reg(apic, APIC_LDR, ldr);
@@ -2542,7 +2542,7 @@ void kvm_lapic_set_base(struct kvm_vcpu *vcpu, u64 value)
 	/* update jump label if enable bit changes */
 	if ((old_value ^ value) & MSR_IA32_APICBASE_ENABLE) {
 		if (value & MSR_IA32_APICBASE_ENABLE) {
-			kvm_apic_set_xapic_id(apic, vcpu->vcpu_id);
+			kvm_apic_set_xapic_id(apic, kvm_apic_id_masked(vcpu->kvm, vcpu->vcpu_id));
 			static_branch_slow_dec_deferred(&apic_hw_disabled);
 			/* Check if there are APF page ready requests pending */
 			kvm_make_request(KVM_REQ_APF_READY, vcpu);
@@ -2554,9 +2554,9 @@ void kvm_lapic_set_base(struct kvm_vcpu *vcpu, u64 value)
 
 	if ((old_value ^ value) & X2APIC_ENABLE) {
 		if (value & X2APIC_ENABLE)
-			kvm_apic_set_x2apic_id(apic, vcpu->vcpu_id);
+			kvm_apic_set_x2apic_id(apic, kvm_apic_id_masked(vcpu->kvm, vcpu->vcpu_id));
 		else if (value & MSR_IA32_APICBASE_ENABLE)
-			kvm_apic_set_xapic_id(apic, vcpu->vcpu_id);
+			kvm_apic_set_xapic_id(apic, kvm_apic_id_masked(vcpu->kvm, vcpu->vcpu_id));
 	}
 
 	if ((old_value ^ value) & (MSR_IA32_APICBASE_ENABLE | X2APIC_ENABLE)) {
@@ -2686,7 +2686,7 @@ void kvm_lapic_reset(struct kvm_vcpu *vcpu, bool init_event)
 
 	/* The xAPIC ID is set at RESET even if the APIC was already enabled. */
 	if (!init_event)
-		kvm_apic_set_xapic_id(apic, vcpu->vcpu_id);
+		kvm_apic_set_xapic_id(apic, kvm_apic_id_masked(vcpu->kvm, vcpu->vcpu_id));
 	kvm_apic_set_version(apic->vcpu);
 
 	for (i = 0; i < apic->nr_lvt_entries; i++)
