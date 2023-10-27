@@ -26,7 +26,7 @@ static struct xarray *kvm_hv_vsm_get_memprots(struct kvm_vcpu *vcpu);
 static void kvm_hv_inject_gpa_intercept(struct kvm_vcpu *vcpu, struct kvm_page_fault *fault)
 {
 	struct kvm_vcpu *target_vcpu =
-		kvm_hv_get_vtl_vcpu(vcpu, get_active_vtl(vcpu) + 1);
+		kvm_hv_get_vtl_vcpu(vcpu, kvm_hv_get_active_vtl(vcpu) + 1);
 	struct kvm_vcpu_hv_intercept_info *intercept =
 		&target_vcpu->arch.hyperv->intercept_info;
 
@@ -162,7 +162,7 @@ static struct xarray *kvm_hv_vsm_get_memprots(struct kvm_vcpu *vcpu)
 	list_for_each_entry(tmp, &vcpu->kvm->devices, vm_node)
 		if (tmp->ops == &kvm_hv_vtl_ops) {
 			vtl_dev = tmp->private;
-			if (vtl_dev->vtl == get_active_vtl(vcpu))
+			if (vtl_dev->vtl == kvm_hv_get_active_vtl(vcpu))
 				return &vtl_dev->mem_attrs;
 		}
 

@@ -288,4 +288,15 @@ static inline u32 kvm_apic_id_mask_value(struct kvm *kvm, u32 apic_id)
 	return apic_id >> kvm->arch.apic_id_mask_shift;
 }
 
+static inline struct kvm_vcpu *kvm_hv_get_vtl_vcpu(struct kvm_vcpu *vcpu, int vtl)
+{
+	return kvm_get_vcpu_by_id(vcpu->kvm,
+            kvm_apic_id_masked(vcpu->kvm, vcpu->vcpu_id) | (vtl << vcpu->kvm->arch.apic_id_mask_shift));
+}
+
+static inline u8 kvm_hv_get_active_vtl(struct kvm_vcpu *vcpu)
+{
+	return (u8)(kvm_apic_id_mask_value(vcpu->kvm, vcpu->vcpu_id));
+}
+
 #endif

@@ -64,7 +64,7 @@
 
 void kvm_tdp_mmu_role_set_hv_bits(struct kvm_vcpu *vcpu, union kvm_mmu_page_role *role)
 {
-	role->vtl = to_kvm_hv(vcpu->kvm)->hv_enable_vsm ? get_active_vtl(vcpu) : 0;
+	role->vtl = to_kvm_hv(vcpu->kvm)->hv_enable_vsm ? kvm_hv_get_active_vtl(vcpu) : 0;
 }
 
 static void stimer_mark_pending(struct kvm_vcpu_hv_stimer *stimer,
@@ -2319,7 +2319,7 @@ static void kvm_hv_send_ipi_to_many(struct kvm *kvm, u32 vector,
 					    valid_bank_mask, sparse_banks))
 			continue;
 
-		if (get_active_vtl(vcpu) != vtl)
+		if (kvm_hv_get_active_vtl(vcpu) != vtl)
 			continue;
 
 		/* We fail only when APIC is disabled */
@@ -2342,7 +2342,7 @@ static u64 kvm_hv_send_ipi(struct kvm_vcpu *vcpu, struct kvm_hv_hcall *hc)
 
 	/* VTL is at the same offset on both IPI types */
 	in_vtl = &send_ipi.in_vtl;
-	vtl = in_vtl->use_target_vtl ? in_vtl->target_vtl : get_active_vtl(vcpu);
+	vtl = in_vtl->use_target_vtl ? in_vtl->target_vtl : kvm_hv_get_active_vtl(vcpu);
 
 	if (hc->code == HVCALL_SEND_IPI) {
 		if (!hc->fast) {
@@ -2663,9 +2663,9 @@ static bool kvm_hv_xlate_va_validate_input(struct kvm_vcpu* vcpu,
 		pr_info_ratelimited("Translate VA control flags unsupported and will be ignored: 0x%llx\n",
 				    in->control_flags);
 
-	*vtl = in_vtl.use_target_vtl ? in_vtl.target_vtl : get_active_vtl(vcpu);
+	*vtl = in_vtl.use_target_vtl ? in_vtl.target_vtl : kvm_hv_get_active_vtl(vcpu);
 
-	if (*vtl >= HV_NUM_VTLS || *vtl > get_active_vtl(vcpu))
+	if (*vtl >= HV_NUM_VTLS || *vtl > kvm_hv_get_active_vtl(vcpu))
 		return false;
 
 	return true;
@@ -3485,7 +3485,7 @@ void dump_ftrace_vcpu_hyperv(struct kvm_vcpu *vcpu)
 	struct hv_vp_vtl_control vtl_control;
 
 	trace_printk("*** HyperV VTL state ***\n");
-	if (get_active_vtl(vcpu) && hv_read_vtl_control(vcpu, &vtl_control))
+	if (kvm_hv_get_active_vtl(vcpu) && hv_read_vtl_control(vcpu, &vtl_control))
 		trace_printk("entry_reason 0x%x, vina %d, rax %llx, rcx %llx\n",
 			     vtl_control.vtl_entry_reason, vtl_control.vina_asserted,
 			     vtl_control.vtl_ret_x64rax, vtl_control.vtl_ret_x64rcx);
