@@ -12122,7 +12122,7 @@ int kvm_arch_vcpu_precreate(struct kvm *kvm, unsigned int id)
 	if (!kvm->arch.max_vcpu_ids)
 		kvm->arch.max_vcpu_ids = KVM_MAX_VCPU_IDS;
 
-	if (id >= kvm->arch.max_vcpu_ids)
+	if (kvm_apic_id_masked(kvm, id) >= kvm->arch.max_vcpu_ids)
 		return -EINVAL;
 
 	return static_call(kvm_x86_vcpu_precreate)(kvm);

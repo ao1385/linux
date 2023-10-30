@@ -4285,8 +4285,9 @@ static int kvm_vm_ioctl_create_vcpu(struct kvm *kvm, u32 id)
 	struct kvm_vcpu *vcpu;
 	struct page *page;
 
-	if (id >= KVM_MAX_VCPU_IDS)
-		return -EINVAL;
+	/* TODO: fix this */
+//	if (id >= KVM_MAX_VCPU_IDS)
+//		return -EINVAL;
 
 	mutex_lock(&kvm->lock);
 	if (kvm->created_vcpus >= kvm->max_vcpus) {
